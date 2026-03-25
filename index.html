@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vidIQ MCP — Your YouTube Data in Any AI Tool</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #111827;
+    --bg-card: #1a2035;
+    --bg-card-hover: #1e2740;
+    --border: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-blue: #3b82f6;
+    --accent-blue-hover: #2563eb;
+    --accent-green: #22c55e;
+    --accent-purple: #a855f7;
+    --accent-orange: #f59e0b;
+    --glow-blue: rgba(59, 130, 246, 0.15);
+    --glow-green: rgba(34, 197, 94, 0.1);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10, 14, 26, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent-blue); }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-cta {
+    background: var(--accent-blue) !important;
+    color: #fff !important;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600 !important;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--accent-blue-hover) !important; }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 10rem 2rem 5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, var(--glow-blue) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 50px;
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin-bottom: 1.5rem;
+  }
+  .hero-badge::before { content: '⚡'; }
+  .hero h1 {
+    font-size: 3.75rem;
+    font-weight: 800;
+    line-height: 1.1;
+    max-width: 800px;
+    margin: 0 auto 1.25rem;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+  }
+  .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent-blue);
+    color: #fff;
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: var(--accent-blue-hover); transform: translateY(-1px); }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--text-primary);
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--text-muted); background: var(--bg-card); }
+
+  /* ===== TOOL LOGOS ===== */
+  .tool-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+  }
+  .tool-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .tool-logo .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* ===== SECTION ===== */
+  section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+  .section-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent-blue);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .section-desc {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+  .section-center { text-align: center; }
+  .section-center .section-desc { margin-left: auto; margin-right: auto; }
+
+  /* ===== SHOWCASE / DEMO ===== */
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  .showcase-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s;
+  }
+  .showcase-card:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+  }
+  .showcase-prompt {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .showcase-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .showcase-prompt-text {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .showcase-response {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    border-left: 3px solid var(--accent-blue);
+  }
+  .showcase-response strong { color: var(--text-primary); font-weight: 600; }
+  .showcase-response .metric {
+    display: inline-block;
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--accent-green);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+  .showcase-category {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-blue);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ===== SETUP TABS ===== */
+  .setup-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .setup-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .setup-tab {
+    padding: 1rem 1.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .setup-tab:hover { color: var(--text-secondary); }
+  .setup-tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+  }
+  .setup-content { padding: 2.5rem; }
+  .setup-steps { display: flex; flex-direction: column; gap: 2rem; }
+  .setup-step {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+  .step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    flex-shrink: 0;
+  }
+  .step-body h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem; }
+  .step-body p { font-size: 0.9rem; color: var(--text-secondary); }
+  .code-block {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block .key { color: var(--accent-purple); }
+  .code-block .val { color: var(--accent-green); }
+  .code-block .comment { color: var(--text-muted); }
+  .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .copy-btn:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+  /* ===== PROMPT LIBRARY ===== */
+  .prompt-categories {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .prompt-cat {
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+  }
+  .prompt-cat:hover { border-color: var(--text-muted); color: var(--text-primary); }
+  .prompt-cat.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #fff;
+  }
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .prompt-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .prompt-card:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+    background: var(--bg-card-hover);
+  }
+  .prompt-card .emoji { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .prompt-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .prompt-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .prompt-card .copy-hint {
+    margin-top: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--accent-blue);
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .prompt-card:hover .copy-hint { opacity: 1; }
+
+  /* ===== PLANS ===== */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .plan-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    position: relative;
+  }
+  .plan-card.featured {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.1);
+  }
+  .plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-blue);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.3rem 1rem;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .plan-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .plan-price {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+  }
+  .plan-price span { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+  .plan-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .plan-features li {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .plan-features li::before {
+    content: '✓';
+    color: var(--accent-green);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .plan-features li.disabled {
+    color: var(--text-muted);
+  }
+  .plan-features li.disabled::before {
+    content: '—';
+    color: var(--text-muted);
+  }
+  .plan-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.875rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  .plan-btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+  .plan-btn-outline:hover { border-color: var(--text-muted); }
+  .plan-btn-primary {
+    background: var(--accent-blue);
+    color: #fff;
+  }
+  .plan-btn-primary:hover { background: var(--accent-blue-hover); }
+
+  /* ===== KEY URL BOX ===== */
+  .url-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem auto;
+    max-width: 500px;
+  }
+  .url-display {
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  /* ===== ADVANTAGE ===== */
+  .advantage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .advantage-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+  }
+  .advantage-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .advantage-card h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .advantage-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+  /* ===== FAQ ===== */
+  .faq-list { max-width: 700px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 0;
+  }
+  .faq-q {
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .faq-q::after {
+    content: '+';
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+  .faq-a {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    line-height: 1.7;
+  }
+
+  /* ===== CTA ===== */
+  .cta-section {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    position: relative;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(circle, var(--glow-blue) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-section h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+  .cta-section p { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .hero h1 { font-size: 2.5rem; }
+    .showcase-grid { grid-template-columns: 1fr; }
+    .prompt-grid { grid-template-columns: 1fr 1fr; }
+    .plans-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+    .advantage-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 2rem; }
+    .prompt-grid { grid-template-columns: 1fr; }
+    .nav-links { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="https://vidiq.com" class="nav-logo">vid<span>IQ</span></a>
+    <div class="nav-links">
+      <a href="#showcase">See It Work</a>
+      <a href="#setup">Setup</a>
+      <a href="#prompts">Prompt Library</a>
+      <a href="#plans">Plans</a>
+      <a href="#faq">FAQ</a>
+      <a href="#get-started" class="nav-cta">Get Your API Key</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Available on Boost &amp; Max plans</div>
+  <h1>Your YouTube data,<br><span class="gradient">in any AI tool</span></h1>
+  <p>Connect vidIQ to Claude, ChatGPT, Cursor, or any AI assistant. Ask questions about your channel and get real, data-backed answers in seconds.</p>
+  <div class="hero-buttons">
+    <a href="#get-started" class="btn-primary">🔑 Generate API Key</a>
+    <a href="#showcase" class="btn-secondary">▶ Watch Setup (60s)</a>
+  </div>
+
+  <div class="url-box">
+    <div class="url-display">https://mcp.vidiq.com</div>
+  </div>
+
+  <div class="tool-logos">
+    <div class="tool-logo"><div class="icon" style="background:#d4a574;color:#000;">C</div> Claude</div>
+    <div class="tool-logo"><div class="icon" style="background:#10a37f;color:#fff;">G</div> ChatGPT</div>
+    <div class="tool-logo"><div class="icon" style="background:#007acc;color:#fff;">⌨</div> Cursor</div>
+    <div class="tool-logo"><div class="icon" style="background:#24292e;color:#fff;">⬡</div> Codex</div>
+    <div class="tool-logo"><div class="icon" style="background:#ff4500;color:#fff;">◉</div> OpenClaw</div>
+    <div class="tool-logo"><div class="icon" style="background:#5b5fc7;color:#fff;">W</div> Windsurf</div>
+    <div class="tool-logo" style="color:var(--text-muted);">+ any MCP client</div>
+  </div>
+</section>
+
+<!-- SHOWCASE -->
+<section id="showcase">
+  <div class="section-center">
+    <div class="section-label">See It In Action</div>
+    <h2 class="section-title">Real prompts. Real data. Real answers.</h2>
+    <p class="section-desc">Here's what it actually looks like when your AI assistant has access to your vidIQ data.</p>
+  </div>
+
+  <div class="showcase-grid">
+    <div class="showcase-card">
+      <div class="showcase-category">🔍 Competition</div>
+      <div class="showcase-prompt">
+        <div class="showcase-avatar">You</div>
+        <div class="showcase-prompt-text">Find channels in my niche that are growing faster than me. What are they doing differently?</div>
+      </div>
+      <div class="showcase-response">
+        Based on your vidIQ data, I found <strong>3 channels</strong> in the personal finance niche growing faster than yours this month:<br><br>
+        1. <strong>@MoneyMindset</strong> — <span class="metric">+42% subs</span> — Posting 2x shorts daily with hook-first format<br>
+        2. <strong>@WealthSimple</strong> — <span class="metric">+28% views</span> — Leveraging trending "no-spend challenge" topics<br>
+        3. <strong>@BudgetBoss</strong> — <span class="metric">+35% subs</span> — Collab-heavy strategy, 3 collabs this month<br><br>
+        <strong>Key pattern:</strong> All three are posting 2-3x more Shorts than you. Your long-form performs well, but you're missing the Shorts discovery flywheel.
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-category">📈 Performance</div>
+      <div class="showcase-prompt">
+        <div class="showcase-avatar">You</div>
+        <div class="showcase-prompt-text">Why did my last 5 videos underperform? Be specific.</div>
+      </div>
+      <div class="showcase-response">
+        Looking at your last 5 uploads vs your 90-day average:<br><br>
+        <strong>The pattern:</strong> Your CTR dropped from <span class="metric">6.2% avg</span> to <span class="metric">3.8%</span> on these videos. The content quality isn't the issue — your <strong>average view duration is actually up</strong> (8:42 vs 7:15).<br><br>
+        <strong>Diagnosis:</strong> Thumbnail + title mismatch. Your top-performing titles use numbers and specific outcomes ("I saved $10K in 6 months"). Recent titles are vague ("My money journey"). <br><br>
+        <strong>Recommendation:</strong> A/B test thumbnails on your next upload. Your data shows faces + text overlays get 2.1x more clicks than lifestyle shots.
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-category">💡 Content Ideas</div>
+      <div class="showcase-prompt">
+        <div class="showcase-avatar">You</div>
+        <div class="showcase-prompt-text">What trending topics in my niche haven't I covered yet?</div>
+      </div>
+      <div class="showcase-response">
+        Cross-referencing trending topics with your upload history:<br><br>
+        <strong>High-opportunity gaps:</strong><br>
+        🔥 <strong>"HYSA rates dropping"</strong> — <span class="metric">Outlier score: 8.4</span> — 12 videos trending, you have 0<br>
+        🔥 <strong>"2026 tax bracket changes"</strong> — <span class="metric">Outlier score: 7.9</span> — seasonal spike starting now<br>
+        🔥 <strong>"Side hustle tax mistakes"</strong> — <span class="metric">Outlier score: 7.2</span> — matches your audience profile<br><br>
+        <strong>Best bet:</strong> "HYSA rates" has high search volume and low competition in your subscriber tier. I'd publish within 48 hours to catch the trend wave.
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-category">🔑 Keywords</div>
+      <div class="showcase-prompt">
+        <div class="showcase-avatar">You</div>
+        <div class="showcase-prompt-text">Find high-volume, low-competition keywords I should target for my next video about budgeting.</div>
+      </div>
+      <div class="showcase-response">
+        Here are keyword opportunities for "budgeting" ranked by opportunity score:<br><br>
+        <strong>Top picks:</strong><br>
+        📊 <strong>"zero based budget for beginners"</strong> — Vol: 18K/mo, Competition: <span class="metric">Low</span>, Score: 92<br>
+        📊 <strong>"budget spreadsheet 2026"</strong> — Vol: 12K/mo, Competition: <span class="metric">Low</span>, Score: 88<br>
+        📊 <strong>"how to budget with irregular income"</strong> — Vol: 8K/mo, Competition: <span class="metric">Medium</span>, Score: 81<br><br>
+        <strong>Pro tip:</strong> "Zero based budget" has 3x the search volume of "50/30/20 rule" right now and only 2 channels in your size range cover it. First-mover advantage here.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY VIDIQ MCP -->
+<section>
+  <div class="section-center">
+    <div class="section-label">Why vidIQ MCP</div>
+    <h2 class="section-title">Built for creators, not developers</h2>
+    <p class="section-desc">Other MCP tools require complex setups and speak in marketing jargon. vidIQ speaks YouTube.</p>
+  </div>
+
+  <div class="advantage-grid">
+    <div class="advantage-card">
+      <div class="advantage-icon" style="background: rgba(59,130,246,0.1);">🔗</div>
+      <h4>Already Connected</h4>
+      <p>You already linked your YouTube account to vidIQ. Your AI can access that same data — no extra OAuth, no YouTube API quotas, no developer console. Just one API key.</p>
+    </div>
+    <div class="advantage-card">
+      <div class="advantage-icon" style="background: rgba(168,85,247,0.1);">🧠</div>
+      <h4>Creator-Native Data</h4>
+      <p>Outlier scores, keyword opportunities, competitive analysis, trend detection — the same vidIQ intelligence you use daily, now accessible to any AI tool.</p>
+    </div>
+    <div class="advantage-card">
+      <div class="advantage-icon" style="background: rgba(34,197,94,0.1);">⚡</div>
+      <h4>60-Second Setup</h4>
+      <p>Generate an API key, paste it into your AI tool's config, done. No OAuth dance, no client IDs, no redirect URIs. Works in Claude, ChatGPT, Cursor, and every MCP-compatible tool.</p>
+    </div>
+    <div class="advantage-card">
+      <div class="advantage-icon" style="background: rgba(245,158,11,0.1);">🔒</div>
+      <h4>Read-Only &amp; Secure</h4>
+      <p>Your AI can read your data but never modify anything. API keys are scoped to your account, revocable instantly, and never stored by AI providers.</p>
+    </div>
+    <div class="advantage-card">
+      <div class="advantage-icon" style="background: rgba(236,72,153,0.1);">💬</div>
+      <h4>Natural Language</h4>
+      <p>No query syntax to learn. Just ask questions like you'd ask a friend: "Why aren't my videos getting views?" and get answers backed by real data.</p>
+    </div>
+    <div class="advantage-card">
+      <div class="advantage-icon" style="background: rgba(99,102,241,0.1);">🤖</div>
+      <h4>Works With Everything</h4>
+      <p>MCP is an open standard. Connect vidIQ to Claude, ChatGPT, Cursor, Codex, OpenClaw, Windsurf, n8n — or build your own integration.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section id="setup">
+  <div class="section-center">
+    <div class="section-label">Setup Guide</div>
+    <h2 class="section-title">Connected in 60 seconds</h2>
+    <p class="section-desc">Pick your AI tool. Three steps. That's it.</p>
+  </div>
+
+  <div class="setup-container">
+    <div class="setup-tabs">
+      <button class="setup-tab active" onclick="showTab('claude')">Claude</button>
+      <button class="setup-tab" onclick="showTab('chatgpt')">ChatGPT</button>
+      <button class="setup-tab" onclick="showTab('cursor')">Cursor</button>
+      <button class="setup-tab" onclick="showTab('claudecode')">Claude Code</button>
+      <button class="setup-tab" onclick="showTab('openclaw')">OpenClaw</button>
+      <button class="setup-tab" onclick="showTab('other')">Other Tools</button>
+    </div>
+
+    <div class="setup-content" id="tab-claude">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h4>Generate your API key</h4>
+            <p>Go to <strong>vidIQ Settings → API Keys</strong> and click "Generate New Key." Copy it immediately — you won't see it again.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h4>Add vidIQ as an MCP integration</h4>
+            <p>In Claude, go to <strong>Settings → Integrations → Add MCP Server</strong>. Paste this URL:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              https://mcp.vidiq.com
+            </div>
+            <p style="margin-top:0.5rem;">When prompted, paste your API key as the Bearer token.</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h4>Start asking questions</h4>
+            <p>That's it. Try: <em>"What trending topics in my niche haven't I covered yet?"</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-content" id="tab-chatgpt" style="display:none;">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h4>Generate your API key</h4>
+            <p>Go to <strong>vidIQ Settings → API Keys</strong> and click "Generate New Key."</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h4>Connect in ChatGPT</h4>
+            <p>In ChatGPT, go to <strong>Settings → Connections → Add MCP</strong>. Enter the vidIQ MCP URL and your API key.</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              https://mcp.vidiq.com
+            </div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h4>Ask away</h4>
+            <p>ChatGPT will automatically use vidIQ tools when relevant. Try: <em>"Analyze my channel's performance this month."</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-content" id="tab-cursor" style="display:none;">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h4>Generate your API key</h4>
+            <p>Go to <strong>vidIQ Settings → API Keys</strong> and click "Generate New Key."</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h4>Add to your MCP config</h4>
+            <p>Add vidIQ to your <code>~/.cursor/mcp.json</code> file:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+{<br>
+&nbsp;&nbsp;<span class="key">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"vidiq"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"url"</span>: <span class="val">"https://mcp.vidiq.com"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"headers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"Authorization"</span>: <span class="val">"Bearer YOUR_API_KEY"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+            </div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h4>Restart Cursor</h4>
+            <p>Restart the editor and vidIQ tools will appear in your MCP panel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-content" id="tab-claudecode" style="display:none;">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h4>Generate your API key</h4>
+            <p>Go to <strong>vidIQ Settings → API Keys</strong> and click "Generate New Key."</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h4>Add the MCP server</h4>
+            <p>Run this command in your terminal:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              claude mcp add vidiq --transport http https://mcp.vidiq.com \<br>
+              &nbsp;&nbsp;--header "Authorization: Bearer YOUR_API_KEY"
+            </div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h4>You're live</h4>
+            <p>Claude Code now has access to your vidIQ data in every session.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-content" id="tab-openclaw" style="display:none;">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h4>Generate your API key</h4>
+            <p>Go to <strong>vidIQ Settings → API Keys</strong> and click "Generate New Key."</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h4>Add to OpenClaw config</h4>
+            <p>Add to your <code>openclaw.yaml</code> MCP section:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<span class="key">mcp</span>:<br>
+&nbsp;&nbsp;<span class="key">servers</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">vidiq</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">url</span>: <span class="val">https://mcp.vidiq.com</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">headers</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">Authorization</span>: <span class="val">Bearer YOUR_API_KEY</span>
+            </div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h4>Restart OpenClaw</h4>
+            <p>Run <code>openclaw gateway restart</code> and vidIQ tools are available to your assistant.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-content" id="tab-other" style="display:none;">
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <h4>Generate your API key</h4>
+            <p>Go to <strong>vidIQ Settings → API Keys</strong> and click "Generate New Key."</p>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <h4>Connect via MCP standard</h4>
+            <p>vidIQ uses the standard MCP protocol. In any MCP-compatible tool, add a new server with:</p>
+            <div class="code-block">
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              <span class="comment">// Server URL</span><br>
+              https://mcp.vidiq.com<br><br>
+              <span class="comment">// Auth header</span><br>
+              Authorization: Bearer YOUR_API_KEY
+            </div>
+          </div>
+        </div>
+        <div class="setup-step">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <h4>Test the connection</h4>
+            <p>Ask your AI tool: "List available vidIQ tools" to verify the connection is working.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMPT LIBRARY -->
+<section id="prompts">
+  <div class="section-center">
+    <div class="section-label">Prompt Library</div>
+    <h2 class="section-title">Copy, paste, grow</h2>
+    <p class="section-desc">Ready-to-use prompts to get the most out of vidIQ + AI. Click to copy.</p>
+  </div>
+
+  <div class="prompt-categories">
+    <button class="prompt-cat active">All</button>
+    <button class="prompt-cat">🔍 Competition</button>
+    <button class="prompt-cat">📈 Performance</button>
+    <button class="prompt-cat">💡 Content Ideas</button>
+    <button class="prompt-cat">🔑 Keywords</button>
+    <button class="prompt-cat">📊 Analytics</button>
+  </div>
+
+  <div class="prompt-grid">
+    <div class="prompt-card">
+      <div class="emoji">🔍</div>
+      <h4>Competitor Deep Dive</h4>
+      <p>"Analyze my top 3 competitors. What content formats are working for them that I'm not using?"</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">📉</div>
+      <h4>Underperformance Audit</h4>
+      <p>"Which of my videos from the last 30 days got less views than my channel average? What do they have in common?"</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">🔥</div>
+      <h4>Trend Spotter</h4>
+      <p>"What topics are trending in my niche right now that I haven't covered? Sort by opportunity score."</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">🎯</div>
+      <h4>Title Optimizer</h4>
+      <p>"Look at my top 10 best-performing titles. What patterns do they share? Generate 5 titles for my next video about [topic]."</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">📅</div>
+      <h4>Upload Strategy</h4>
+      <p>"Based on my audience's viewing patterns, what's the best day and time for me to publish?"</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">🏆</div>
+      <h4>Content Gap Analysis</h4>
+      <p>"Find high-volume keywords in my niche where no channel with under 100K subscribers has a top-ranking video."</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">💰</div>
+      <h4>Growth Opportunities</h4>
+      <p>"Which of my videos are ranking on page 2 for valuable keywords? What would it take to push them to page 1?"</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">🎬</div>
+      <h4>Shorts Strategy</h4>
+      <p>"Analyze my Shorts vs long-form performance. Am I leaving growth on the table by not posting more Shorts?"</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+    <div class="prompt-card">
+      <div class="emoji">📊</div>
+      <h4>Monthly Report</h4>
+      <p>"Give me a complete channel health report: subscriber growth, view trends, best/worst performers, and what to focus on next month."</p>
+      <div class="copy-hint">Click to copy →</div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section id="plans">
+  <div class="section-center">
+    <div class="section-label">Plans</div>
+    <h2 class="section-title">MCP access on paid plans</h2>
+    <p class="section-desc">The same vidIQ tools you already use — now accessible to your AI assistant.</p>
+  </div>
+
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0</div>
+      <div class="plan-desc">For exploring vidIQ</div>
+      <ul class="plan-features">
+        <li class="disabled">MCP access not included</li>
+        <li class="disabled">No API key generation</li>
+        <li>Limited keyword suggestions</li>
+        <li>Basic channel stats</li>
+      </ul>
+      <a href="https://vidiq.com/pricing" class="plan-btn plan-btn-outline">View Plans</a>
+    </div>
+
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Boost</div>
+      <div class="plan-price">$16.58<span>/mo</span></div>
+      <div class="plan-desc">Full MCP access for growing creators</div>
+      <ul class="plan-features">
+        <li>Full MCP access — all tools</li>
+        <li>Keyword research + outliers</li>
+        <li>Competitor analysis</li>
+        <li>Trend detection</li>
+        <li>2,000 credits/month</li>
+        <li>AI Coach with Deep Thinking</li>
+      </ul>
+      <a href="https://vidiq.com/pricing" class="plan-btn plan-btn-primary">Get Boost</a>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-name">Max</div>
+      <div class="plan-price">$39<span>/mo</span></div>
+      <div class="plan-desc">Everything in Boost, plus more</div>
+      <ul class="plan-features">
+        <li>Full MCP access — all tools</li>
+        <li>Everything in Boost</li>
+        <li>Unlimited AI Coach</li>
+        <li>Max Mode AI (5x more powerful)</li>
+        <li>6,000 credits/month</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="https://vidiq.com/pricing" class="plan-btn plan-btn-outline">Get Max</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-center">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">Common questions</h2>
+  </div>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">What is MCP?</div>
+      <div class="faq-a">Model Context Protocol (MCP) is an open standard that lets AI tools connect to external data sources. Think of it as a USB port for AI — plug in vidIQ, and your AI assistant can access your YouTube data directly.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Does this use my YouTube API quota?</div>
+      <div class="faq-a">No. vidIQ MCP uses vidIQ's own data infrastructure, not your YouTube API quota. Your channel data is already synced through vidIQ — the MCP just gives your AI tools a way to query it.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can the AI modify my YouTube channel?</div>
+      <div class="faq-a">No. MCP access is strictly read-only. Your AI can analyze your data, find trends, and give recommendations — but it can never upload, edit, or delete anything on your channel.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How many API keys can I create?</div>
+      <div class="faq-a">You can create multiple API keys — one per AI tool, or one to share across tools. Each key can be revoked individually if needed.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Does this cost extra beyond my vidIQ plan?</div>
+      <div class="faq-a">No additional cost. MCP access is included with Boost and Max plans. You're accessing the same data your vidIQ dashboard already shows — just through a different interface.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Which AI tools are supported?</div>
+      <div class="faq-a">Any tool that supports the MCP standard: Claude (web, desktop, mobile, Code), ChatGPT, Cursor, Codex, OpenClaw, Windsurf, Warp, Gemini CLI, n8n, and more. If it has MCP support, it works with vidIQ.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is my data safe?</div>
+      <div class="faq-a">Yes. Your API key is scoped to your account only. AI providers don't store your vidIQ data — they query it in real-time and discard it after generating a response. You can revoke any key instantly from your settings.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="get-started">
+  <h2>Ready to supercharge your workflow?</h2>
+  <p>Generate your API key and connect vidIQ to your favorite AI tool in under a minute.</p>
+  <a href="https://app.vidiq.com/settings/api-keys" class="btn-primary">🔑 Generate API Key</a>
+</section>
+
+<footer>
+  <p>© 2026 vidIQ. All rights reserved. · <a href="https://vidiq.com/privacy" style="color:var(--text-muted);">Privacy</a> · <a href="https://vidiq.com/terms" style="color:var(--text-muted);">Terms</a></p>
+</footer>
+
+<script>
+function showTab(tab) {
+  document.querySelectorAll('.setup-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.setup-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+function copyCode(btn) {
+  const block = btn.parentElement;
+  const text = block.textContent.replace('Copy', '').trim();
+  navigator.clipboard.writeText(text);
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+// FAQ toggle
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const a = q.nextElementSibling;
+    const isOpen = a.style.display === 'block';
+    document.querySelectorAll('.faq-a').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.faq-q').forEach(el => el.style.cssText = '');
+    if (!isOpen) {
+      a.style.display = 'block';
+    }
+  });
+});
+// Hide all FAQ answers initially
+document.querySelectorAll('.faq-a').forEach(el => el.style.display = 'none');
+
+// Prompt card copy
+document.querySelectorAll('.prompt-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const prompt = card.querySelector('p').textContent;
+    navigator.clipboard.writeText(prompt);
+    const hint = card.querySelector('.copy-hint');
+    hint.textContent = '✓ Copied!';
+    hint.style.opacity = '1';
+    setTimeout(() => {
+      hint.textContent = 'Click to copy →';
+      hint.style.opacity = '';
+    }, 2000);
+  });
+});
+</script>
+
+</body>
+</html>
